@@ -42,8 +42,8 @@ ol, ul {
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 70px;
-  height: 70px;
+  width: 150px;
+  height: 150px;
 }
 
 .square:focus {
@@ -108,6 +108,14 @@ console.error = (function(old) {
 
     <script type="text/babel">
 
+    function Square(props){
+      return(
+        <div className="square">
+          <h1>{props.value}</h1>
+        </div>
+      );
+    }
+
     class Board extends React.Component{
       constructor(props){
         super(props);
@@ -121,13 +129,33 @@ console.error = (function(old) {
         };
       }
 
+      renderSquare(i) {
+        return (<Square
+          value={this.props.squares[i]}
+          onClick={() => this.props.onClick(i)}
+        />);
+      }
+
       render(){
-        var returns = []
+        var rowsX = []
+        var counter = 0
         this.board.map((row, i = 0) => {
-          returns.push(<h1 key={i} class="square">hullo</h1>);
+          var rowX = []
+          row.map((row) => {
+            rowX.push(
+              <div key={counter} className="square">
+                <h1>{counter}</h1>
+              </div>);
+            counter++;
+          });
+          rowsX.push(
+            <div key = {i} className = "board-row">
+              {rowX}
+            </div>);
           i++;
         });
-        return returns;
+        console.log("oh la la");
+        return rowsX;
       }
     }
 
@@ -142,7 +170,7 @@ console.error = (function(old) {
         return (
           <div className="game">
             <div className="game-board">
-              <Board
+              <Game
               />
             </div>
           </div>
