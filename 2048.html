@@ -75,6 +75,7 @@ ol, ul {
   white-space: pre-wrap;
 "></div>
 <div id="root"></div>
+
 <script>
 window.addEventListener('mousedown', function(e) {
   document.body.classList.add('mouse-navigation');
@@ -110,7 +111,7 @@ console.error = (function(old) {
 
     function Square(props){
       return(
-        <div className="square">
+        <div key={props.counter} className="square">
           <h1>{props.value}</h1>
         </div>
       );
@@ -129,10 +130,11 @@ console.error = (function(old) {
         };
       }
 
-      renderSquare(i) {
+      renderSquare(i, j, counter) {
+        console.log(i, j);
         return (<Square
-          value={this.props.squares[i]}
-          onClick={() => this.props.onClick(i)}
+          value= {this.board[i][j]}
+          counter  = {counter}
         />);
       }
 
@@ -141,11 +143,8 @@ console.error = (function(old) {
         var counter = 0
         this.board.map((row, i = 0) => {
           var rowX = []
-          row.map((row) => {
-            rowX.push(
-              <div key={counter} className="square">
-                <h1>{counter}</h1>
-              </div>);
+          row.map((row, j = 0) => {
+            rowX.push(this.renderSquare(i, j, counter));
             counter++;
           });
           rowsX.push(
@@ -154,7 +153,7 @@ console.error = (function(old) {
             </div>);
           i++;
         });
-        console.log("oh la la");
+        rowsX.push(<button>Test button</button>)
         return rowsX;
       }
     }
@@ -170,7 +169,7 @@ console.error = (function(old) {
         return (
           <div className="game">
             <div className="game-board">
-              <Game
+              <Board
               />
             </div>
           </div>
@@ -178,13 +177,9 @@ console.error = (function(old) {
     }
     }
 
-
-
-
-
 // ========================================
 
-    ReactDOM.render(<Board />,
+    ReactDOM.render(<Game />,
     document.getElementById('root')
     );
 
