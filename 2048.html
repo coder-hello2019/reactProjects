@@ -138,6 +138,15 @@ console.error = (function(old) {
         />);
       }
 
+      handleClick(name){
+        this.board.map((row) =>{
+          for(let i = 0; i < row.length; i++){
+            console.log(row[i] + 2);
+            row[i] += 2;
+          }
+        });
+      }
+
       render(){
         var rowsX = []
         var counter = 0
@@ -153,7 +162,7 @@ console.error = (function(old) {
             </div>);
           i++;
         });
-        rowsX.push(<button>Test button</button>)
+        rowsX.push(<button onClick={()=>this.handleClick()}>Test button</button>)
         return rowsX;
       }
     }
