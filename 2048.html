@@ -120,37 +120,44 @@ console.error = (function(old) {
     class Board extends React.Component{
       constructor(props){
         super(props);
-        this.board = [];
+        this.state = {
+          board: [],
+        };
         for(let i = 0; i < 4; i++){
           let row = [];
           for(let j = 0; j < 4; j++){
             row.push(0);
           }
-          this.board.push(row);
+          this.state.board.push(row);
         };
       }
 
       renderSquare(i, j, counter) {
         console.log(i, j);
         return (<Square
-          value= {this.board[i][j]}
+          value= {this.state.board[i][j]}
           counter  = {counter}
         />);
       }
 
       handleClick(name){
-        this.board.map((row) =>{
+        // N.B. use of ... for deep copy
+        var newBoard = [...this.state.board];
+        newBoard.map((row) =>{
           for(let i = 0; i < row.length; i++){
-            console.log(row[i] + 2);
             row[i] += 2;
           }
+        });
+
+        this.setState({
+          board: newBoard,
         });
       }
 
       render(){
         var rowsX = []
         var counter = 0
-        this.board.map((row, i = 0) => {
+        this.state.board.map((row, i = 0) => {
           var rowX = []
           row.map((row, j = 0) => {
             rowX.push(this.renderSquare(i, j, counter));
