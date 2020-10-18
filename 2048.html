@@ -118,6 +118,7 @@ console.error = (function(old) {
     }
 
     class Board extends React.Component{
+
       constructor(props){
         super(props);
         this.state = {
@@ -130,10 +131,35 @@ console.error = (function(old) {
           }
           this.state.board.push(row);
         };
+        // allocate initial squares to the board
+        this.allocRandomSquares();
+      }
+
+      allocRandomSquares(){
+        var newBoard = [...this.state.board];
+        // generate random coordinates on the board to change
+        var x1 = Math.floor(Math.random() * 3);
+        var y1 = Math.floor(Math.random() * 3);
+
+        var x2 = Math.floor(Math.random() * 3);
+        var y2 = Math.floor(Math.random() * 3);
+
+        // this is to make sure that there are no clashes on the board
+        while(x1 == x2 && y1 == y2){
+          x2 = Math.floor(Math.random() * 3);
+          y2 = Math.floor(Math.random() * 3);
+        }
+
+        newBoard[x1][y1] = 8;
+        newBoard[x2][y2] = 9;
+
+        this.setState({
+          board: newBoard,
+        });
       }
 
       renderSquare(i, j, counter) {
-        console.log(i, j);
+        //console.log(i, j);
         return (<Square
           value= {this.state.board[i][j]}
           counter  = {counter}
@@ -148,10 +174,31 @@ console.error = (function(old) {
             row[i] += 2;
           }
         });
+        this.moveLeft();
 
         this.setState({
           board: newBoard,
         });
+      }
+
+      moveLeft(){
+        console.log(this.state.board);
+        for(var row in this.state.board){
+          var copyRow = [...this.state.board[row]];
+          // strip out 0s
+          var indices = [];
+          for(var i =0; i<copyRow.length; i++){
+            if(copyRow[i] == 0){
+              //console.log("tralala");
+            }
+          }
+          //console.log(indices);
+          for(var j=0; j<indices.length; j++){
+            var toDel = copyRow.indexOf(indices[j]);
+            copyRow.splice(toDel, 1);
+          }
+          //console.log(copyRow);
+        };
       }
 
       render(){
