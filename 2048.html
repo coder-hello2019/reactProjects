@@ -136,7 +136,10 @@ console.error = (function(old) {
       }
 
       allocRandomSquares(){
-        var newBoard = [...this.state.board];
+        //var newBoard = [...this.state.board];
+        var newBoard = JSON.parse(JSON.stringify(this.state.board));
+        console.log("The Board before allocRandomSquares is:");
+        console.log(newBoard);
         // generate random coordinates on the board to change
         var x1 = Math.floor(Math.random() * 3);
         var y1 = Math.floor(Math.random() * 3);
@@ -150,8 +153,11 @@ console.error = (function(old) {
           y2 = Math.floor(Math.random() * 3);
         }
 
-        newBoard[x1][y1] = 8;
-        newBoard[x2][y2] = 9;
+        newBoard[x1][y1] = 2;
+        newBoard[x2][y2] = 4;
+
+        // TO DELETE
+        newBoard[x1][y1 + 1] = 2;
 
         this.setState({
           board: newBoard,
@@ -168,37 +174,114 @@ console.error = (function(old) {
 
       handleClick(name){
         // N.B. use of ... for deep copy
-        var newBoard = [...this.state.board];
-        newBoard.map((row) =>{
+        //var newBoard = [...this.state.board];
+        var newBoard = JSON.parse(JSON.stringify(this.state.board));
+
+        if(name=="up"){
+          var hullo = this.rotate90(newBoard);
+          hullo = this.rotate90(hullo);
+          hullo = this.rotate90(hullo);
+          newBoard = hullo;
+          var replacementBoard = this.moveLeft(newBoard);
+          replacementBoard = this.rotate90(replacementBoard);
+        }
+        else if(name=="left"){
+          var replacementBoard = this.moveLeft(newBoard);
+        }
+        else if(name=="right"){
+          var hullo = this.rotate90(newBoard);
+          hullo = this.rotate90(hullo);
+          newBoard = hullo;
+          var replacementBoard = this.moveLeft(newBoard);
+          replacementBoard = this.rotate90(replacementBoard);
+          replacementBoard = this.rotate90(replacementBoard);
+        }
+        else if(name=="down"){
+          // 1, left, 3
+          var hullo = this.rotate90(newBoard);
+          newBoard = hullo;
+          var replacementBoard = this.moveLeft(newBoard);
+          replacementBoard = this.rotate90(replacementBoard);
+          replacementBoard = this.rotate90(replacementBoard);
+          replacementBoard = this.rotate90(replacementBoard);
+        }
+
+        // add random 2 or 4 to an empty square in the newBoard
+
+        // generate random coordinates on the board to change
+        var randomX = Math.floor(Math.random() * 3);
+        var randomY = Math.floor(Math.random() * 3);
+        while(replacementBoard[randomX][randomY] != 0){
+          var x1 = Math.floor(Math.random() * 3);
+          var y1 = Math.floor(Math.random() * 3);
+        }
+        // ADD option of making this either 2 or 4
+        replacementBoard[randomX][randomY] = 2;
+        /*newBoard.map((row) =>{
           for(let i = 0; i < row.length; i++){
             row[i] += 2;
           }
-        });
-        this.moveLeft();
+        });*/
 
         this.setState({
-          board: newBoard,
+          board: replacementBoard,
         });
       }
 
-      moveLeft(){
-        console.log(this.state.board);
-        for(var row in this.state.board){
-          var copyRow = [...this.state.board[row]];
-          // strip out 0s
-          var indices = [];
-          for(var i =0; i<copyRow.length; i++){
-            if(copyRow[i] == 0){
-              //console.log("tralala");
+      rotate90(newBoard){
+        var oldArr = newBoard;
+        var newArr = [[],[],[],[]];
+        var len = newArr.length;
+
+        for(var i=3; i >= 0; i--){
+          for(var j=0; j<len; j++){
+            newArr[i].push(newBoard[j][i]);
+          }
+          newArr[i].reverse();
+        }
+
+        return newArr;
+      }
+
+      moveLeft(newBoard){
+        // variable to hold the new board that we're creating
+        var refreshedBoard = [];
+
+        for(var row in newBoard){
+          console.log("The row: " + row);
+          //var copyRow = [...newBoard[row]];
+          var copyRow = newBoard[row];
+          var len = copyRow.length;
+          // newRow = copyRow with 0s stripped out
+          var newRow = [];
+
+          var counter = 0;
+
+          // strip out 0s and merge numbers where needed
+          for(var i =0; i < len; i++){
+            console.log("Number: " + copyRow[i]);
+            if(copyRow[i] != 0){
+              if(i < len && copyRow[i] == copyRow[i + 1]){
+                newRow.push(copyRow[i] * 2);
+              }
+              else if(i >= 1 && copyRow[i] == copyRow[i - 1]){
+                //this is like the Python pass statement
+                counter += 1;
+              }
+              else{
+                newRow.push(copyRow[i]);
+              }
+            }
+            else{
+              counter += 1;
             }
           }
-          //console.log(indices);
-          for(var j=0; j<indices.length; j++){
-            var toDel = copyRow.indexOf(indices[j]);
-            copyRow.splice(toDel, 1);
+          for(var i = 0; i < counter; i++){
+            newRow.push(0);
           }
-          //console.log(copyRow);
+          refreshedBoard.push(newRow);
         };
+        return refreshedBoard;
       }
 
       render(){
@@ -216,7 +299,10 @@ console.error = (function(old) {
             </div>);
           i++;
         });
-        rowsX.push(<button onClick={()=>this.handleClick()}>Test button</button>)
+        rowsX.push(<button onClick={()=>this.handleClick(name="left")}>Move Left</button>);
+        rowsX.push(<button onClick={()=>this.handleClick(name="up")}>Move Up</button>);
+        rowsX.push(<button onClick={()=>this.handleClick(name="down")}>Move Down</button>);
+        rowsX.push(<button onClick={()=>this.handleClick(name="right")}>Move Right</button>);
         return rowsX;
       }
     }
