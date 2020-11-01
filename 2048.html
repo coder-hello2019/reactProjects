@@ -8,7 +8,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
 
-    <title>To do</title>
+    <title>2048</title>
 
     <style>
     body {
@@ -111,7 +111,7 @@ console.error = (function(old) {
 
     function Square(props){
       return(
-        <div key={props.counter} className="square">
+        <div className="square">
           <h1>{props.value}</h1>
         </div>
       );
@@ -132,10 +132,28 @@ console.error = (function(old) {
           this.state.board.push(row);
         };
         // allocate initial squares to the board
-        this.allocRandomSquares();
+        //this.allocRandomSquares();
+
+        var x1 = Math.floor(Math.random() * 3);
+        var y1 = Math.floor(Math.random() * 3);
+
+        var x2 = Math.floor(Math.random() * 3);
+        var y2 = Math.floor(Math.random() * 3);
+
+        // this is to make sure that there are no clashes on the board
+        while(x1 == x2 && y1 == y2){
+          x2 = Math.floor(Math.random() * 3);
+          y2 = Math.floor(Math.random() * 3);
+        }
+
+        this.state.board[x1][y1] = 2;
+        this.state.board[x2][y2] = 4;
+
+        // TO DELETE
+        this.state.board[x1][y1 + 1] = 2;
       }
 
-      allocRandomSquares(){
+      /*allocRandomSquares(){
         //var newBoard = [...this.state.board];
         var newBoard = JSON.parse(JSON.stringify(this.state.board));
         console.log("The Board before allocRandomSquares is:");
@@ -162,13 +180,13 @@ console.error = (function(old) {
         this.setState({
           board: newBoard,
         });
-      }
+      }*/
 
       renderSquare(i, j, counter) {
         //console.log(i, j);
         return (<Square
-          value= {this.state.board[i][j]}
-          counter  = {counter}
+          value = {this.state.board[i][j]}
+          key = {counter}
         />);
       }
 
@@ -185,7 +203,7 @@ console.error = (function(old) {
           var replacementBoard = this.moveLeft(newBoard);
           replacementBoard = this.rotate90(replacementBoard);
         }
-        else if(name=="left"){
+        if(name=="left"){
           var replacementBoard = this.moveLeft(newBoard);
         }
         else if(name=="right"){
@@ -206,17 +224,21 @@ console.error = (function(old) {
           replacementBoard = this.rotate90(replacementBoard);
         }
 
-        // add random 2 or 4 to an empty square in the newBoard
+        // if there are still empty squares on the board
+        // ADD check for whether the move was valid - if not, do not add new square
+        if(replacementBoard.some(row => row.includes(0))){
+          // add new tile to the board in empty square
+          var randomX = Math.floor(Math.random() * 3);
+          var randomY = Math.floor(Math.random() * 3);
 
-        // generate random coordinates on the board to change
-        var randomX = Math.floor(Math.random() * 3);
-        var randomY = Math.floor(Math.random() * 3);
-        while(replacementBoard[randomX][randomY] != 0){
-          var x1 = Math.floor(Math.random() * 3);
-          var y1 = Math.floor(Math.random() * 3);
+          while(replacementBoard[randomX][randomY] != 0){
+            var randomX = Math.floor(Math.random() * 3);
+            var randomY = Math.floor(Math.random() * 3);
+          }
+          // ADD option of making this either 2 or 4
+          replacementBoard[randomX][randomY] = 2;
         }
-        // ADD option of making this either 2 or 4
-        replacementBoard[randomX][randomY] = 2;
+
         /*newBoard.map((row) =>{
           for(let i = 0; i < row.length; i++){
             row[i] += 2;
@@ -246,20 +268,20 @@ console.error = (function(old) {
       moveLeft(newBoard){
         // variable to hold the new board that we're creating
         var refreshedBoard = [];
-
+        console.log("newBoard in moveLeft is " + newBoard);
         for(var row in newBoard){
-          console.log("The row: " + row);
           //var copyRow = [...newBoard[row]];
+          // CHECK OUT THIS LINEEEEE
           var copyRow = newBoard[row];
           var len = copyRow.length;
           // newRow = copyRow with 0s stripped out
           var newRow = [];
 
           var counter = 0;
+          //var copyRow = copyRow.filter(function check0(num){return num > 0});
 
           // strip out 0s and merge numbers where needed
           for(var i =0; i < len; i++){
-            console.log("Number: " + copyRow[i]);
             if(copyRow[i] != 0){
               if(i < len && copyRow[i] == copyRow[i + 1]){
                 newRow.push(copyRow[i] * 2);
@@ -281,16 +303,18 @@ console.error = (function(old) {
           }
           refreshedBoard.push(newRow);
         };
+        console.log("newBoar at the end of moveLeft is " + newBoard);
         return refreshedBoard;
       }
 
       render(){
+        console.log("Board is re-rendering!")
         var rowsX = []
         var counter = 0
         this.state.board.map((row, i = 0) => {
           var rowX = []
           row.map((row, j = 0) => {
-            rowX.push(this.renderSquare(i, j, counter));
+            rowX.push(this.renderSquare(i, j, counter ));
             counter++;
           });
           rowsX.push(
@@ -299,10 +323,11 @@ console.error = (function(old) {
             </div>);
           i++;
         });
-        rowsX.push(<button onClick={()=>this.handleClick(name="left")}>Move Left</button>);
-        rowsX.push(<button onClick={()=>this.handleClick(name="up")}>Move Up</button>);
-        rowsX.push(<button onClick={()=>this.handleClick(name="down")}>Move Down</button>);
-        rowsX.push(<button onClick={()=>this.handleClick(name="right")}>Move Right</button>);
+        // keys here are super hacky - TODo
+        rowsX.push(<button key={100} onClick={()=>this.handleClick(name="left")}>Move Left</button>);
+        rowsX.push(<button key={200} onClick={()=>this.handleClick(name="up")}>Move Up</button>);
+        rowsX.push(<button key={300} onClick={()=>this.handleClick(name="down")}>Move Down</button>);
+        rowsX.push(<button key={400} onClick={()=>this.handleClick(name="right")}>Move Right</button>);
         return rowsX;
       }
     }
