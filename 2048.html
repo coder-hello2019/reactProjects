@@ -46,6 +46,23 @@ ol, ul {
   height: 150px;
 }
 
+
+.popup {
+  background: #6eeb34;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 600px;
+  height: 600px;
+}
+
 .red-square {
   background: red;
   border: 1px solid #999;
@@ -129,7 +146,13 @@ console.error = (function(old) {
 
     <script type="text/babel">
 
-
+    function Popup(props){
+      return(
+        <div className="popup">
+          <h1>Game won</h1>
+        </div>
+      )
+    }
 
     function Square(props){
       if(props.value > 0){
@@ -226,20 +249,42 @@ console.error = (function(old) {
       // check if we already have 2048 on the board - give user the option to continue if 2048
       is2048(){
         for(var i = 0; i < 4; i++){
-          if(this.state.board[i].includes(64)){
+          if(this.state.board[i].includes(128)){
             return true;
           }
         }
         return false;
       }
 
-      // returns true if game is over i.e. there are no empty spots on the board
+      // returns true if game is over i.e. there are no empty spots or valid moves on the board
       isGameOver(){
+        // game isn't over while there are still empty fields on the board
         for(var i = 0; i < 4; i++){
           if(this.state.board[i].includes(0)){
             return false;
           }
         }
+        // game isn't over while the user can still make valid moves
+
+        // check if any horizontal/row valid moves
+        for(var row = 0; row < 4; row++){
+          for(var num_in_row = 0; num_in_row < 3; num_in_row++){
+            if(this.state.board[row][num_in_row] == this.state.board[row][num_in_row + 1]){
+              return false;
+            }
+          }
+        }
+
+        // check if any vertical/column valid moves
+        for(var col = 0; col < 4; col++){
+          for(var row = 0; row < 3; row++){
+            if(this.state.board[row][col] == this.state.board[row + 1][col]){
+              return false;
+            }
+          }
+        }
+
+        // game is over when there are no empty fields/valie moves on the board
         return true;
       }
 
@@ -283,9 +328,15 @@ console.error = (function(old) {
           console.log("Move complete");
         }
 
-        // if there are still empty squares on the board
-        // ADD check for whether the move was valid - if not, do not add new square
-        if(replacementBoard.some(row => row.includes(0))){
+        //if(JSON.parse(JSON.stringify(replacementBoard)) != JSON.parse(JSON.stringify(this.state.board))){
+        /*if(JSON.stringify(replacementBoard) != JSON.stringify(this.state.board)){
+          console.log("replacementBoard and the board saved in state are different")
+          console.log("REPLACEMENT BOARD: " + replacementBoard)
+          console.log("Board saved in state: " + this.state.board)
+        }*/
+
+        // add a random new tile to the board if (i) there are still empty fields on the board AND (ii) the move being made is valid
+        if(replacementBoard.some(row => row.includes(0)) && (JSON.stringify(replacementBoard) != JSON.stringify(this.state.board))){
           // add new tile to the board in empty square
 
           do {
@@ -358,8 +409,6 @@ console.error = (function(old) {
           else{
             var merged = false;
             for(var i =0; i < copyRow.length; i++){
-              // deals with tiles that have matching neighbours
-
               // if matching neighbour on right - merge
               if(copyRow[i] == copyRow[i + 1]){
                 if(merged == false){
@@ -380,10 +429,10 @@ console.error = (function(old) {
                 }
 
               }
-              else{
+              /*/else{
                 newRow.push(copyRow[i]);
                 merged = false;
-              }
+              }*/
             }
             console.log("newRow is " + newRow);
             console.log("newRow length is " + newRow.length);
@@ -402,6 +451,9 @@ console.error = (function(old) {
       }
 
       componentDidMount() {
+        if(this.isGameOver() == true){
+          alert("GAME OVER");
+        }
         window.addEventListener("keydown", event => {
           // check if game is over i.e. whether there are still empty spaces on board
           if(this.isGameOver() == false){
