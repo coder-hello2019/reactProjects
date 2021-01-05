@@ -267,6 +267,8 @@ console.error = (function(old) {
         // game isn't over while the user can still make valid moves
 
         // check if any horizontal/row valid moves
+        // REMOVE COMMENT
+        /*
         for(var row = 0; row < 4; row++){
           for(var num_in_row = 0; num_in_row < 3; num_in_row++){
             if(this.state.board[row][num_in_row] == this.state.board[row][num_in_row + 1]){
@@ -283,7 +285,7 @@ console.error = (function(old) {
             }
           }
         }
-
+        */
         // game is over when there are no empty fields/valie moves on the board
         return true;
       }
@@ -300,11 +302,11 @@ console.error = (function(old) {
           newBoard = hullo;
           var replacementBoard = this.moveLeft(newBoard);
           replacementBoard = this.rotate90(replacementBoard);
-          console.log("Move complete");
+          //console.log("Move complete");
         }
         if(name=="left"){
           var replacementBoard = this.moveLeft(newBoard);
-          console.log("Move complete");
+          //console.log("Move complete");
 
         }
         else if(name=="right"){
@@ -314,7 +316,7 @@ console.error = (function(old) {
           var replacementBoard = this.moveLeft(newBoard);
           replacementBoard = this.rotate90(replacementBoard);
           replacementBoard = this.rotate90(replacementBoard);
-          console.log("Move complete");
+          //console.log("Move complete");
 
         }
         else if(name=="down"){
@@ -325,7 +327,7 @@ console.error = (function(old) {
           replacementBoard = this.rotate90(replacementBoard);
           replacementBoard = this.rotate90(replacementBoard);
           replacementBoard = this.rotate90(replacementBoard);
-          console.log("Move complete");
+          //console.log("Move complete");
         }
 
         //if(JSON.parse(JSON.stringify(replacementBoard)) != JSON.parse(JSON.stringify(this.state.board))){
@@ -344,13 +346,13 @@ console.error = (function(old) {
             //var randomY = Math.floor(Math.random() * 3);
             var randomX = Math.floor(Math.random() * (3-0+1)) + 0;
             var randomY = Math.floor(Math.random() * (3-0+1)) + 0;
-            console.log("Random coordinates have been generated");
-            console.log(replacementBoard[randomX][randomY]);
+            //console.log("Random coordinates have been generated");
+            //console.log(replacementBoard[randomX][randomY]);
           }
           while(replacementBoard[randomX][randomY] != 0)
           // ADD option of making this either 2 or 4
           replacementBoard[randomX][randomY] = 2;
-          console.log("Random number has been added to replacementBoard");
+          //console.log("Random number has been added to replacementBoard");
         }
 
         /*newBoard.map((row) =>{
@@ -392,7 +394,7 @@ console.error = (function(old) {
           // newRow will be the row with all numbers merged
           var newRow = [];
 
-          console.log("copyRow is " + copyRow);
+          //console.log("copyRow is " + copyRow);
 
           // merge numbers and add 0s as needed
           if(copyRow.length == 0){
@@ -434,26 +436,38 @@ console.error = (function(old) {
                 merged = false;
               }*/
             }
-            console.log("newRow is " + newRow);
-            console.log("newRow length is " + newRow.length);
+            //console.log("newRow is " + newRow);
+            //console.log("newRow length is " + newRow.length);
             var len = newRow.length;
-            console.log("Therefore we need " + (4 - len) + " 0s added at the end");
+            //console.log("Therefore we need " + (4 - len) + " 0s added at the end");
 
             for(var i = 0; i < 4 - len; i++){
               newRow.push(0);
-              console.log("The Os loop has exectued " + (i + 1) + " times before crashing");
+              //console.log("The Os loop has exectued " + (i + 1) + " times before crashing");
             }
           }
           refreshedBoard.push(newRow);
-          console.log("Row has been pushed to refreshedBoard");
+          //console.log("Row has been pushed to refreshedBoard");
         };
         return refreshedBoard;
       }
 
+      // after every move, we check for game over and for game won
+      componentDidUpdate(){
+          if(this.isGameOver() == true){
+            setTimeout(function(){
+              alert("POOP");
+            }, 300);
+          }
+          else if(this.is2048() == true){
+            setTimeout(function(){
+              alert("CONGRATS!");
+            }, 300);
+          }
+      }
+
       componentDidMount() {
-        if(this.isGameOver() == true){
-          alert("GAME OVER");
-        }
+
         window.addEventListener("keydown", event => {
           // check if game is over i.e. whether there are still empty spaces on board
           if(this.isGameOver() == false){
@@ -485,14 +499,9 @@ console.error = (function(old) {
               this.handleClick("right");
             }
           }
-          else{
-            alert("GAME OVER - NO MOVES");
-          }
-
         });
 
       }
-
 
       render(){
         console.log("Board is re-rendering!")
