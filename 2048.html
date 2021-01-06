@@ -205,8 +205,6 @@ console.error = (function(old) {
         this.state.board[x1][y1] = 2;
         this.state.board[x2][y2] = 4;
 
-        // TO DELETE
-        this.state.board[x1][y1 + 1] = 2;
       }
 
       /*allocRandomSquares(){
@@ -452,27 +450,24 @@ console.error = (function(old) {
         return refreshedBoard;
       }
 
+      // reset board i. .e. clear current board and add random start tiles
+      reset(){
+
+        this.setState({
+          confirmedContinuePlaying: false,
+          board: [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]]
+        });
+      }
+
       // after every move, we check for game over and for game won
       componentDidUpdate(){
           if(this.isGameOver() == true){
             setTimeout(function(){
-              alert("POOP");
+              alert("GAME OVER");
             }, 300);
           }
-          else if(this.is2048() == true){
-            setTimeout(function(){
-              alert("CONGRATS!");
-            }, 300);
-          }
-      }
-
-      componentDidMount() {
-
-        window.addEventListener("keydown", event => {
-          // check if game is over i.e. whether there are still empty spaces on board
-          if(this.isGameOver() == false){
-            // if user has won, check if they want to keep playing
-            if(this.is2048() == true && this.state.confirmedContinuePlaying == false){
+          else if(this.is2048() == true && this.state.confirmedContinuePlaying == false){
+            setTimeout(() => {
               // if user wants to keep playing, save decision; otherwise finish game
               var contd = confirm("You won! Want to keep playing?");
               if(contd == true){
@@ -481,11 +476,17 @@ console.error = (function(old) {
                 });
               }
               else{
-                this.setState({
-                  board: [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]],
-                });
+                this.reset();
               }
-            }
+            }, 300);
+          }
+      }
+
+      componentDidMount() {
+
+        window.addEventListener("keydown", event => {
+          // listen for key presses unless the game is over
+          if(this.isGameOver() == false){
             if(event.keyCode === 40){
               this.handleClick("down");
             }
@@ -521,10 +522,12 @@ console.error = (function(old) {
         });
 
         // keys here are super hacky - TODo
+        /*
         rowsX.push(<button key={100} onClick={()=>this.handleClick(name="left")}>Move Left</button>);
         rowsX.push(<button key={200} onClick={()=>this.handleClick(name="up")}>Move Up</button>);
         rowsX.push(<button key={300} onClick={()=>this.handleClick(name="down")}>Move Down</button>);
         rowsX.push(<button key={400} onClick={()=>this.handleClick(name="right")}>Move Right</button>);
+        */
         return rowsX;
       }
     }
