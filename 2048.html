@@ -451,11 +451,28 @@ console.error = (function(old) {
       }
 
       // reset board i. .e. clear current board and add random start tiles
-      reset(){
+      initialiseNewBoard(){
+        var resetBoard = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]];
+
+        // create coordinates for random board variables
+        var x1 = Math.floor(Math.random() * 3);
+        var y1 = Math.floor(Math.random() * 3);
+
+        var x2 = Math.floor(Math.random() * 3);
+        var y2 = Math.floor(Math.random() * 3);
+
+        // make sure that the random variables do not clash with each other
+        while(x1 == x2 && y1 == y2){
+          x2 = Math.floor(Math.random() * 3);
+          y2 = Math.floor(Math.random() * 3);
+        }
+
+        resetBoard[x1][y1] = 2;
+        resetBoard[x2][y2] = 4;
 
         this.setState({
           confirmedContinuePlaying: false,
-          board: [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]]
+          board: resetBoard
         });
       }
 
@@ -476,7 +493,8 @@ console.error = (function(old) {
                 });
               }
               else{
-                this.reset();
+                // reset the board to a new random start state
+                this.initialiseNewBoard();
               }
             }, 300);
           }
