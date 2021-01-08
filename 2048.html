@@ -63,7 +63,23 @@ ol, ul {
   height: 600px;
 }
 
-.red-square {
+.general_square {
+  background: white;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 150px;
+  height: 150px;
+}
+
+.square-0 {
   background: red;
   border: 1px solid #999;
   float: left;
@@ -78,6 +94,40 @@ ol, ul {
   width: 150px;
   height: 150px;
 }
+
+
+.square-2 {
+  background: green;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 150px;
+  height: 150px;
+}
+
+.square-4 {
+  background: blue;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 150px;
+  height: 150px;
+}
+
 
 .square:focus {
   outline: none;
@@ -155,6 +205,15 @@ console.error = (function(old) {
     }
 
     function Square(props){
+      var cellName = "general_square square-" + props.value;
+
+      return(
+        <div className={cellName}>
+          <h1>{props.value}</h1>
+        </div>
+      );
+
+      /*
       if(props.value > 0){
         return(
           <div className="red-square">
@@ -168,7 +227,7 @@ console.error = (function(old) {
             <h1>{props.value}</h1>
           </div>
         );
-      }
+      }*/
 
     }
 
@@ -177,34 +236,31 @@ console.error = (function(old) {
       constructor(props){
         super(props);
         this.state = {
-          board: [],
+          board: this.generateNewBoard(),
           confirmedContinuePlaying: false,
         };
-        for(let i = 0; i < 4; i++){
-          let row = [];
-          for(let j = 0; j < 4; j++){
-            row.push(0);
-          }
-          this.state.board.push(row);
-        };
-        // allocate initial squares to the board
-        //this.allocRandomSquares();
+      }
 
+      generateNewBoard(){
+        var resetBoard = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]];
+
+        // create coordinates for random board variables
         var x1 = Math.floor(Math.random() * 3);
         var y1 = Math.floor(Math.random() * 3);
 
         var x2 = Math.floor(Math.random() * 3);
         var y2 = Math.floor(Math.random() * 3);
 
-        // this is to make sure that there are no clashes on the board
+        // make sure that the random variables do not clash with each other
         while(x1 == x2 && y1 == y2){
           x2 = Math.floor(Math.random() * 3);
           y2 = Math.floor(Math.random() * 3);
         }
 
-        this.state.board[x1][y1] = 2;
-        this.state.board[x2][y2] = 4;
+        resetBoard[x1][y1] = 2;
+        resetBoard[x2][y2] = 4;
 
+        return resetBoard;
       }
 
       /*allocRandomSquares(){
@@ -451,36 +507,19 @@ console.error = (function(old) {
       }
 
       // reset board i. .e. clear current board and add random start tiles
-      initialiseNewBoard(){
-        var resetBoard = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]];
-
-        // create coordinates for random board variables
-        var x1 = Math.floor(Math.random() * 3);
-        var y1 = Math.floor(Math.random() * 3);
-
-        var x2 = Math.floor(Math.random() * 3);
-        var y2 = Math.floor(Math.random() * 3);
-
-        // make sure that the random variables do not clash with each other
-        while(x1 == x2 && y1 == y2){
-          x2 = Math.floor(Math.random() * 3);
-          y2 = Math.floor(Math.random() * 3);
-        }
-
-        resetBoard[x1][y1] = 2;
-        resetBoard[x2][y2] = 4;
-
+      reset(){
         this.setState({
           confirmedContinuePlaying: false,
-          board: resetBoard
+          board: this.generateNewBoard()
         });
       }
 
       // after every move, we check for game over and for game won
       componentDidUpdate(){
           if(this.isGameOver() == true){
-            setTimeout(function(){
+            setTimeout(() => {
               alert("GAME OVER");
+              this.reset();
             }, 300);
           }
           else if(this.is2048() == true && this.state.confirmedContinuePlaying == false){
@@ -494,7 +533,7 @@ console.error = (function(old) {
               }
               else{
                 // reset the board to a new random start state
-                this.initialiseNewBoard();
+                this.reset();
               }
             }, 300);
           }
@@ -539,13 +578,6 @@ console.error = (function(old) {
           i++;
         });
 
-        // keys here are super hacky - TODo
-        /*
-        rowsX.push(<button key={100} onClick={()=>this.handleClick(name="left")}>Move Left</button>);
-        rowsX.push(<button key={200} onClick={()=>this.handleClick(name="up")}>Move Up</button>);
-        rowsX.push(<button key={300} onClick={()=>this.handleClick(name="down")}>Move Down</button>);
-        rowsX.push(<button key={400} onClick={()=>this.handleClick(name="right")}>Move Right</button>);
-        */
         return rowsX;
       }
     }
