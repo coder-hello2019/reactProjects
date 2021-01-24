@@ -138,6 +138,12 @@
     );
   }
 
+  class AIagent extends React.Component{
+    render(){
+      <h1>"Hello, I'm an AI"</h1>
+    };
+  }
+
   class Board extends React.Component{
 
     constructor(props){
@@ -145,6 +151,7 @@
       this.state = {
         board: generateNewBoard(),
         confirmedContinuePlaying: false,
+        playAI: this.props.playAI,
       };
     }
 
@@ -360,6 +367,8 @@
 
     componentDidMount() {
 
+      console.log("AI" + this.state.playAI);
+
       console.log("Calling this.foo")
       this.foo();
 
@@ -404,29 +413,43 @@
     }
   }
 
+
   class Game extends React.Component{
 
     constructor(props){
       super(props);
-      this.board = new Board();
+      this.AI = false;
+      //this.board = new Board();
+    }
+
+    setAI(){
+      this.setState({
+        AI: true,
+      });
+    }
+
+    componentDidUpdate(){
+      console.log("Game component updated");
+      if(this.AI = true){
+
+      }
     }
 
     render() {
 
-      return (
-        <div className="game">
-          <div style={{paddingRight: '5px'}}>
-            <button>Button 1</button>
-            <button>Button 2</button>
-          </div>
-
-          <div className="game-board">
-            <Board
-            />
-          </div>
+    return (
+      <div className="game">
+        <div className="nav">
+        <div style={{paddingRight: '5px'}}>
+          <button onClick={() => this.setAI()}>Button 1</button>
+          <button>Button 2</button>
         </div>
-
-      );
+        </div>
+        <div className="game-board">
+          <Board playAI={this.AI}/>
+        </div>
+      </div>
+    );
   }
   }
 
