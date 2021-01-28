@@ -137,10 +137,16 @@
       </div>
     );
   }
-
   class AIagent extends React.Component{
+    constructor(props){
+      super(props);
+      this.state ={
+        board: <Board/>,
+      }
+    }
+
     render(){
-      <h1>"Hello, I'm an AI"</h1>
+      return(this.state.board);
     };
   }
 
@@ -149,6 +155,7 @@
     constructor(props){
       super(props);
       this.state = {
+        score: 0,
         board: generateNewBoard(),
         confirmedContinuePlaying: false,
         playAI: this.props.playAI,
@@ -173,12 +180,12 @@
         hullo = this.rotate90(hullo);
         hullo = this.rotate90(hullo);
         newBoard = hullo;
-        var replacementBoard = this.moveLeft(newBoard);
+        var [replacementBoard, newScore] = this.moveLeft(newBoard);
         replacementBoard = this.rotate90(replacementBoard);
         //console.log("Move complete");
       }
       if(name=="left"){
-        var replacementBoard = this.moveLeft(newBoard);
+        var [replacementBoard, newScore] = this.moveLeft(newBoard);
         //console.log("Move complete");
 
       }
@@ -186,7 +193,7 @@
         var hullo = this.rotate90(newBoard);
         hullo = this.rotate90(hullo);
         newBoard = hullo;
-        var replacementBoard = this.moveLeft(newBoard);
+        var [replacementBoard, newScore] = this.moveLeft(newBoard);
         replacementBoard = this.rotate90(replacementBoard);
         replacementBoard = this.rotate90(replacementBoard);
         //console.log("Move complete");
@@ -196,7 +203,7 @@
         // 1, left, 3
         var hullo = this.rotate90(newBoard);
         newBoard = hullo;
-        var replacementBoard = this.moveLeft(newBoard);
+        var [replacementBoard, newScore] = this.moveLeft(newBoard);
         replacementBoard = this.rotate90(replacementBoard);
         replacementBoard = this.rotate90(replacementBoard);
         replacementBoard = this.rotate90(replacementBoard);
@@ -226,6 +233,7 @@
 
       this.setState({
         board: replacementBoard,
+        score: this.state.score + newScore,
       });
     }
 
@@ -247,6 +255,7 @@
     moveLeft(newBoard){
       // variable to hold the new board that we're creating
       var refreshedBoard = [];
+      var points = 0;
 
       for(var row in newBoard){
         //var copyRow = [...newBoard[row]];
@@ -279,6 +288,7 @@
               if(merged == false){
                 newRow.push(copyRow[i] + copyRow[i + 1]);
                 merged = true;
+                points += (copyRow[i] + copyRow[i + 1]);
               }
               else{
                 merged = false;
@@ -299,27 +309,25 @@
               merged = false;
             }*/
           }
-          //console.log("newRow is " + newRow);
-          //console.log("newRow length is " + newRow.length);
+
           var len = newRow.length;
-          //console.log("Therefore we need " + (4 - len) + " 0s added at the end");
 
           for(var i = 0; i < 4 - len; i++){
             newRow.push(0);
-            //console.log("The Os loop has exectued " + (i + 1) + " times before crashing");
+
           }
         }
         refreshedBoard.push(newRow);
-        //console.log("Row has been pushed to refreshedBoard");
       };
-      return refreshedBoard;
+      return [refreshedBoard, points];
     }
 
     // reset board i. .e. clear current board and add random start tiles
     reset(){
       this.setState({
         confirmedContinuePlaying: false,
-        board: generateNewBoard()
+        board: generateNewBoard(),
+        score: 0,
       });
     }
 
@@ -367,11 +375,6 @@
 
     componentDidMount() {
 
-      console.log("AI" + this.state.playAI);
-
-      console.log("Calling this.foo")
-      this.foo();
-
       window.addEventListener("keydown", event => {
         // listen for key presses unless the game is over
         if(isGameOver(this.state.board) == false){
@@ -392,8 +395,21 @@
 
     }
 
+    playAI(){
+
+      setTimeout(() => {
+        console.log("Move left first");
+        this.handleClick("left");
+        setTimeout(() => {
+          this.callback();
+        }, 50)
+      }, 50);
+    }
+
+
     render(){
       //console.log("Board is re-rendering!")
+
       var rowsX = []
       var counter = 0
       this.state.board.map((row, i = 0) => {
@@ -409,53 +425,69 @@
         i++;
       });
 
-      return rowsX;
+      return(
+        <div>
+          <button onClick={() => this.playAI()}>Test Button</button>
+          <div>{rowsX}</div>
+          <h1>Score: {this.state.score}</h1>
+        </div>
+      );
+      //return rowsX;
     }
   }
 
+
+  class Child extends React.Component{
+    render(){
+      return<button onClick={this.props.handler}>Button</button>
+    }
+  }
 
   class Game extends React.Component{
 
     constructor(props){
       super(props);
-      this.AI = false;
-      //this.board = new Board();
+      this.handler = this.handler.bind(this);
+
+      this.state = {
+        playAI: false,
+      };
     }
 
-    setAI(){
+    handler(){
       this.setState({
-        AI: true,
+        playAI: true
       });
-    }
-
-    componentDidUpdate(){
-      console.log("Game component updated");
-      if(this.AI = true){
-
-      }
     }
 
     render() {
 
-    return (
-      <div className="game">
-        <div className="nav">
-        <div style={{paddingRight: '5px'}}>
-          <button onClick={() => this.setAI()}>Button 1</button>
-          <button>Button 2</button>
+      var toReturn;
+
+      if(this.state.playAI == false){
+        toReturn = <Board/>;
+      }
+      else{
+        toReturn = <AIagent/>;
+      }
+      console.log(toReturn);
+
+      return(
+        <div className="game">
+          <div className="testChild">
+            <Child handler={this.handler}/>
+          </div>
+          <div className="game-board">
+            {toReturn}
+          </div>
         </div>
-        </div>
-        <div className="game-board">
-          <Board playAI={this.AI}/>
-        </div>
-      </div>
-    );
-  }
+      );
+    }
   }
 
 // ========================================
 
-  ReactDOM.render(<Game />,
+  ReactDOM.render(<Board />,
   document.getElementById('root')
   );
 
