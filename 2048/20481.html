@@ -120,6 +120,40 @@
     return true;
   }
 
+  function simulateMove(moveName, newBoard){
+    if(moveName=="up"){
+      var hullo = this.rotate90(newBoard);
+      hullo = this.rotate90(hullo);
+      hullo = this.rotate90(hullo);
+      newBoard = hullo;
+      var [replacementBoard, newScore] = this.moveLeft(newBoard);
+      replacementBoard = this.rotate90(replacementBoard);
+    }
+    if(moveName=="left"){
+      var [replacementBoard, newScore] = this.moveLeft(newBoard);
+
+    }
+    else if(moveName=="right"){
+      var hullo = this.rotate90(newBoard);
+      hullo = this.rotate90(hullo);
+      newBoard = hullo;
+      var [replacementBoard, newScore] = this.moveLeft(newBoard);
+      replacementBoard = this.rotate90(replacementBoard);
+      replacementBoard = this.rotate90(replacementBoard);
+    }
+    else if(moveName=="down"){
+      // 1, left, 3
+      var hullo = this.rotate90(newBoard);
+      newBoard = hullo;
+      var [replacementBoard, newScore] = this.moveLeft(newBoard);
+      replacementBoard = this.rotate90(replacementBoard);
+      replacementBoard = this.rotate90(replacementBoard);
+      replacementBoard = this.rotate90(replacementBoard);
+    }
+
+    return(replacementBoard, newScore)
+  }
+
   function Popup(props){
     return(
       <div className="popup">
@@ -137,7 +171,7 @@
       </div>
     );
   }
-  class AIagent extends React.Component{
+ /*class AIagent extends React.Component{
     constructor(props){
       super(props);
       this.state ={
@@ -148,7 +182,7 @@
     render(){
       return(this.state.board);
     };
-  }
+  }*/
 
   class Board extends React.Component{
 
@@ -163,7 +197,6 @@
     }
 
     renderSquare(i, j, counter) {
-      //console.log(i, j);
       return (<Square
         value = {this.state.board[i][j]}
         key = {counter}
@@ -172,7 +205,6 @@
 
     handleClick(name){
       // N.B. use of ... for deep copy
-      //var newBoard = [...this.state.board];
       var newBoard = JSON.parse(JSON.stringify(this.state.board));
 
       if(name=="up"){
@@ -182,11 +214,9 @@
         newBoard = hullo;
         var [replacementBoard, newScore] = this.moveLeft(newBoard);
         replacementBoard = this.rotate90(replacementBoard);
-        //console.log("Move complete");
       }
       if(name=="left"){
         var [replacementBoard, newScore] = this.moveLeft(newBoard);
-        //console.log("Move complete");
 
       }
       else if(name=="right"){
@@ -196,8 +226,6 @@
         var [replacementBoard, newScore] = this.moveLeft(newBoard);
         replacementBoard = this.rotate90(replacementBoard);
         replacementBoard = this.rotate90(replacementBoard);
-        //console.log("Move complete");
-
       }
       else if(name=="down"){
         // 1, left, 3
@@ -207,7 +235,6 @@
         replacementBoard = this.rotate90(replacementBoard);
         replacementBoard = this.rotate90(replacementBoard);
         replacementBoard = this.rotate90(replacementBoard);
-        //console.log("Move complete");
       }
 
       // add a random new tile to the board if (i) there are still empty fields on the board AND (ii) the move being made is valid
@@ -266,8 +293,6 @@
         // newRow will be the row with all numbers merged
         var newRow = [];
 
-        //console.log("copyRow is " + copyRow);
-
         // merge numbers and add 0s as needed
         if(copyRow.length == 0){
           for(var i = 0; i < 4; i++){
@@ -304,10 +329,6 @@
               }
 
             }
-            /*/else{
-              newRow.push(copyRow[i]);
-              merged = false;
-            }*/
           }
 
           var len = newRow.length;
@@ -464,13 +485,14 @@
 
       var toReturn;
 
-      if(this.state.playAI == false){
+      toReturn = <Board/>;
+      /*if(this.state.playAI == false){
         toReturn = <Board/>;
       }
       else{
         toReturn = <AIagent/>;
       }
-      console.log(toReturn);
+      console.log(toReturn);*/
 
       return(
         <div className="game">
