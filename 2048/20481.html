@@ -120,38 +120,123 @@
     return true;
   }
 
-  function simulateMove(moveName, newBoard){
-    if(moveName=="up"){
-      var hullo = this.rotate90(newBoard);
-      hullo = this.rotate90(hullo);
-      hullo = this.rotate90(hullo);
-      newBoard = hullo;
-      var [replacementBoard, newScore] = this.moveLeft(newBoard);
-      replacementBoard = this.rotate90(replacementBoard);
-    }
-    if(moveName=="left"){
-      var [replacementBoard, newScore] = this.moveLeft(newBoard);
+  function simulateMove(name, newBoard){
+    if(name=="up"){
+        var hullo = rotate90(newBoard);
+        hullo = rotate90(hullo);
+        hullo = rotate90(hullo);
+        newBoard = hullo;
+        var [replacementBoard, newScore] = moveLeft(newBoard);
+        replacementBoard = rotate90(replacementBoard);
+        //console.log("Move complete");
+      }
+      if(name=="left"){
+        var [replacementBoard, newScore] = moveLeft(newBoard);
+        //console.log("Move complete");
 
-    }
-    else if(moveName=="right"){
-      var hullo = this.rotate90(newBoard);
-      hullo = this.rotate90(hullo);
-      newBoard = hullo;
-      var [replacementBoard, newScore] = this.moveLeft(newBoard);
-      replacementBoard = this.rotate90(replacementBoard);
-      replacementBoard = this.rotate90(replacementBoard);
-    }
-    else if(moveName=="down"){
-      // 1, left, 3
-      var hullo = this.rotate90(newBoard);
-      newBoard = hullo;
-      var [replacementBoard, newScore] = this.moveLeft(newBoard);
-      replacementBoard = this.rotate90(replacementBoard);
-      replacementBoard = this.rotate90(replacementBoard);
-      replacementBoard = this.rotate90(replacementBoard);
-    }
+      }
+      else if(name=="right"){
+        var hullo = rotate90(newBoard);
+        hullo = rotate90(hullo);
+        newBoard = hullo;
+        var [replacementBoard, newScore] = moveLeft(newBoard);
+        replacementBoard = rotate90(replacementBoard);
+        replacementBoard = rotate90(replacementBoard);
+        //console.log("Move complete");
 
-    return(replacementBoard, newScore)
+      }
+      else if(name=="down"){
+        // 1, left, 3
+        var hullo = rotate90(newBoard);
+        newBoard = hullo;
+        var [replacementBoard, newScore] = moveLeft(newBoard);
+        replacementBoard = rotate90(replacementBoard);
+        replacementBoard = rotate90(replacementBoard);
+        replacementBoard = rotate90(replacementBoard);
+        //console.log("Move complete");
+      }
+
+      return[replacementBoard, newScore];
+  }
+
+
+  function rotate90(newBoard){
+    var oldArr = newBoard;
+    var newArr = [[],[],[],[]];
+    var len = newArr.length;
+
+    for(var i=3; i >= 0; i--){
+      for(var j=0; j<len; j++){
+        newArr[i].push(newBoard[j][i]);
+      }
+      newArr[i].reverse();
+    }
+    //console.log("This prints just before the return in rotate90");
+    return newArr;
+  }
+
+  function moveLeft(newBoard){
+    // variable to hold the new board that we're creating
+    var refreshedBoard = [];
+    var points = 0;
+
+    for(var row in newBoard){
+      //var copyRow = [...newBoard[row]];
+      var copyRow = newBoard[row];
+      // strip out 0s
+      var copyRow = copyRow.filter(function check0(num){return num > 0});
+
+      // newRow will be the row with all numbers merged
+      var newRow = [];
+
+      // merge numbers and add 0s as needed
+      if(copyRow.length == 0){
+        for(var i = 0; i < 4; i++){
+          newRow.push(0);
+        }
+      }
+      else if(copyRow.length == 1){
+        newRow.push(copyRow[0])
+        for(var i = 0; i < 3; i++){
+          newRow.push(0);
+        }
+      }
+      else{
+        var merged = false;
+        for(var i =0; i < copyRow.length; i++){
+          // if matching neighbour on right - merge
+          if(copyRow[i] == copyRow[i + 1]){
+            if(merged == false){
+              newRow.push(copyRow[i] + copyRow[i + 1]);
+              merged = true;
+              points += (copyRow[i] + copyRow[i + 1]);
+            }
+            else{
+              merged = false;
+            }
+          }
+          else if(copyRow[i] > 0){
+            if(merged == true){
+              merged = false;
+            }
+            else{
+              newRow.push(copyRow[i]);
+              merged = false;
+            }
+
+          }
+        }
+
+        var len = newRow.length;
+
+        for(var i = 0; i < 4 - len; i++){
+          newRow.push(0);
+
+        }
+      }
+      refreshedBoard.push(newRow);
+    };
+    return [refreshedBoard, points];
   }
 
   function Popup(props){
@@ -205,39 +290,12 @@
 
     handleClick(name){
       // N.B. use of ... for deep copy
-      var newBoard = JSON.parse(JSON.stringify(this.state.board));
+      var currentBoard = JSON.parse(JSON.stringify(this.state.board));
 
-      if(name=="up"){
-        var hullo = this.rotate90(newBoard);
-        hullo = this.rotate90(hullo);
-        hullo = this.rotate90(hullo);
-        newBoard = hullo;
-        var [replacementBoard, newScore] = this.moveLeft(newBoard);
-        replacementBoard = this.rotate90(replacementBoard);
-      }
-      if(name=="left"){
-        var [replacementBoard, newScore] = this.moveLeft(newBoard);
-
-      }
-      else if(name=="right"){
-        var hullo = this.rotate90(newBoard);
-        hullo = this.rotate90(hullo);
-        newBoard = hullo;
-        var [replacementBoard, newScore] = this.moveLeft(newBoard);
-        replacementBoard = this.rotate90(replacementBoard);
-        replacementBoard = this.rotate90(replacementBoard);
-      }
-      else if(name=="down"){
-        // 1, left, 3
-        var hullo = this.rotate90(newBoard);
-        newBoard = hullo;
-        var [replacementBoard, newScore] = this.moveLeft(newBoard);
-        replacementBoard = this.rotate90(replacementBoard);
-        replacementBoard = this.rotate90(replacementBoard);
-        replacementBoard = this.rotate90(replacementBoard);
-      }
+      var [replacementBoard, newScore] = simulateMove(name, currentBoard);
 
       // add a random new tile to the board if (i) there are still empty fields on the board AND (ii) the move being made is valid
+
       if(replacementBoard.some(row => row.includes(0)) && (JSON.stringify(replacementBoard) != JSON.stringify(this.state.board))){
 
         // generate the position for the random tile
@@ -264,7 +322,7 @@
       });
     }
 
-    rotate90(newBoard){
+      rotate90(newBoard){
       var oldArr = newBoard;
       var newArr = [[],[],[],[]];
       var len = newArr.length;
@@ -417,14 +475,71 @@
     }
 
     playAI(){
+      /*console.log("Moving left")
+      this.handleClick("left");
+      console.log("Moving down")
+      this.handleClick("down");*/
 
-      setTimeout(() => {
+      /*
+      Steps - just to check that the function works - actual AI remains to be done:
+      1. Make a copy of the current board
+      2. For each possible move i.e. up/down/left/right
+         a. simulate that move using handleClick({direction})
+         b. save the name of the move and the score
+      3. Pick the move with the highest score
+      */
+     var AIIntervalID = setInterval(() => {
+
+       console.log("Inside setTimeout()");
+       var boardCopy = JSON.parse(JSON.stringify(this.state.board));
+       const possibleMoves = ["left", "right", "up", "down"];
+       var movePoints = {}
+       possibleMoves.forEach(function (item, index){
+         var [boardieBoard, scorieScore] = simulateMove(item, boardCopy);
+         movePoints[item] = scorieScore;
+       });
+
+       var highestPossibleScore = 0;
+       var bestMove = "left";
+
+       for(var key in movePoints){
+         if(movePoints[key] > highestPossibleScore){
+           highestPossibleScore = movePoints[key];
+           bestMove = key;
+         }
+       };
+       this.handleClick(bestMove);
+       if(isGameOver(this.state.board)){
+         clearInterval();
+       }
+    }, 1000);
+
+      /*var boardCopy = JSON.parse(JSON.stringify(this.state.board));
+      const possibleMoves = ["left", "right", "up", "down"];
+      var movePoints = {}
+      possibleMoves.forEach(function (item, index){
+        var [boardieBoard, scorieScore] = simulateMove(item, boardCopy);
+        movePoints[item] = scorieScore;
+      });
+
+      var highestPossibleScore = 0;
+      var bestMove = "left";
+
+      for(var key in movePoints){
+        if(movePoints[key] > highestPossibleScore){
+          highestPossibleScore = movePoints[key];
+          bestMove = key;
+        }
+      };
+      this.handleClick(bestMove);*/
+
+      /*setTimeout(() => {
         console.log("Move left first");
         this.handleClick("left");
         setTimeout(() => {
           this.callback();
         }, 50)
-      }, 50);
+      }, 50);*/
     }
 
 
