@@ -278,6 +278,7 @@
         board: generateNewBoard(),
         confirmedContinuePlaying: false,
         playAI: this.props.playAI,
+        AIInterval: this.propsAIInterval
       };
     }
 
@@ -474,7 +475,7 @@
 
     }
 
-    playAI(){
+    playAI(TF){
       /*console.log("Moving left")
       this.handleClick("left");
       console.log("Moving down")
@@ -488,17 +489,31 @@
          b. save the name of the move and the score
       3. Pick the move with the highest score
       */
+
+      // this checks whether the user had pressed the pause button. If they have, the interval below pauses.
+      if(TF == true){
+        clearInterval(this.state.AIInterval);
+        return
+      }
+
+      // this keeps making an AI move every second
      var AIIntervalID = setInterval(() => {
 
-       console.log("Inside setTimeout()");
+       // make a copy of the current state of the board
        var boardCopy = JSON.parse(JSON.stringify(this.state.board));
+
        const possibleMoves = ["left", "right", "up", "down"];
+
+       // dictionary to track score values of various moves
        var movePoints = {}
+
+       // iterate over all the moves and save their score values
        possibleMoves.forEach(function (item, index){
          var [boardieBoard, scorieScore] = simulateMove(item, boardCopy);
          movePoints[item] = scorieScore;
        });
 
+       // select the score with the highest value - if no highest score in possible moves, make a random move
        var highestPossibleScore = 0;
        var bestMove = "left";
 
@@ -508,11 +523,20 @@
            bestMove = key;
          }
        };
+
+       // go ahead and make the move
        this.handleClick(bestMove);
+
+       // check whether latest move has resulted in a game over - if so, break out of this loop
        if(isGameOver(this.state.board)){
          clearInterval();
        }
     }, 1000);
+
+    // save the ID of the interval in state so that we can clear it when the user pauses the AI
+    this.setState({
+      AIInterval: AIIntervalID
+    })
 
       /*var boardCopy = JSON.parse(JSON.stringify(this.state.board));
       const possibleMoves = ["left", "right", "up", "down"];
@@ -564,6 +588,7 @@
       return(
         <div>
           <button onClick={() => this.playAI()}>Test Button</button>
+          <button onClick={() => this.playAI(true)}>Pause AI</button>
           <div>{rowsX}</div>
           <h1>Score: {this.state.score}</h1>
         </div>
