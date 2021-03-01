@@ -490,10 +490,14 @@
       3. Pick the move with the highest score
       */
 
-      // this checks whether the user had pressed the pause button. If they have, the interval below pauses.
+      // the first condition checks whether the user had pressed the pause button. If they have, the interval below clears and the game is effectively paused.
+      // The second condition checks whether an interval had already been set previously - and clears it if so. This is to prevent the interval from "speeding up" when the AI button is pressed.
       if(TF == true){
         clearInterval(this.state.AIInterval);
         return
+      }
+      else if (typeof this.state.AIInterval !== 'undefined'){
+        clearInterval(this.state.AIInterval);
       }
 
       // this keeps making an AI move every second
