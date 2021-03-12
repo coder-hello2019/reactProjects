@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -64,6 +65,7 @@ function boardScore(boardState){
   for(var i = 0; i < 3; i++){
     for(var j = 0; j < 3; j++){
       score += parseInt(boardState[i][j]);
+      console.log("Parsed int inside boardScore: " + parseInt(boardState[i][j]));
     }
   }
   // the "up" here is not strictly needed - just matching the format to return a tuple
@@ -80,7 +82,6 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
   // so we need an evaluation function to look at the state!!!!
   var utility = boardScore(boardState);
-  var bestMove = "blah";
 
   const actions = ["left", "right", "up", "down"];
   if(isGameOver(boardState) == true || (currentDepth % 3 == 0)){
@@ -94,6 +95,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
     var currentDepth = currentDepth + 1;
     console.log("We're inside MAX");
     var v = -Infinity;
+    var bestMove;
 
     // iterate over available actions
     actions.forEach(function(item, index){
@@ -101,13 +103,18 @@ function expectimax(currentPlayer, boardState, currentDepth){
       // simulate making the move i.e. generate the successor state
       var [successorBoard, successorScore] = simulateMove(item, boardState);
       // need to reference the 0th element because expectimax returns a tuple
-      console.log("Move we're trying: " + item);
-      console.log("Resulting Board: " + successorBoard);
-      var score = Math.max(v, expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth));
+      //console.log("Move we're trying: " + item);
+      //console.log("Resulting Board: " + successorBoard);
+      var expectPoints = expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth);
+      console.log("expectPoints: " + expectPoints);
+      console.log("v: " + v);
+      console.log("v < expectPoints: " + (v < expectPoints));
+      var score = Math.max(v, expectPoints);
       if(score >= v){
         v = score;
         bestMove = item;
       }
+      console.log(v);
       console.log("Score inside MAX: " + score);
 
     })
@@ -150,7 +157,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
     v = v / 2;
     // returning the "up" here to maintain consistency with the format returned by the "MAX" variation but this won't be getting used anywhere
     // note that we needs to be divided by 2 given that there are 2 possible actions
-    return(v, "up");
+    return(v);
 
   }
   // catch-all in case something goes wrong
@@ -221,6 +228,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
   }
 
   function simulateMove(name, newBoard){
+
     if(name=="up"){
         var hullo = rotate90(newBoard);
         hullo = rotate90(hullo);
@@ -255,6 +263,10 @@ function expectimax(currentPlayer, boardState, currentDepth){
         replacementBoard = rotate90(replacementBoard);
         //console.log("Move complete");
       }
+      /*console.log("Board being returned from simulateMove(): ");
+      console.log(replacementBoard);
+      console.log(JSON.stringify(replacementBoard));*/
+      // N.b. not 100% clear why this change needed to be made - random values were being inserted into board
 
       return[replacementBoard, newScore];
   }
@@ -277,7 +289,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
   function moveLeft(newBoard){
     // variable to hold the new board that we're creating
-    var refreshedBoard = [];
+    var refreshedBoard = newBoard;
     var points = 0;
 
     for(var row in newBoard){
@@ -334,8 +346,17 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
         }
       }
-      refreshedBoard.push(newRow);
+      console.log("newRow: " + newRow);
+      refreshedBoard[row] = newRow;
+      console.log("refreshedBoard after newRow push: ");
+      for(row in refreshedBoard){
+        console.log(refreshedBoard[row]);
+      }
+      console.log("refreshedBoard still inside the for loop: ");
+      console.log(refreshedBoard);
     };
+    console.log("refreshedBoard being returned from moveLeft: ");
+    console.log(refreshedBoard);
     return [refreshedBoard, points];
   }
 
@@ -363,7 +384,6 @@ function expectimax(currentPlayer, boardState, currentDepth){
         board: <Board/>,
       }
     }
-
     render(){
       return(this.state.board);
     };
@@ -390,9 +410,14 @@ function expectimax(currentPlayer, boardState, currentDepth){
     }
 
     handleClick(name){
+      console.log("Board before parsing inside handleClick: ");
+      console.log(this.state.board);
       // N.B. use of ... for deep copy
       var currentBoard = JSON.parse(JSON.stringify(this.state.board));
-
+      //console.log("currentBoard after parsing/stringifying in handleClick: ")
+      //console.log(currentBoard);
+      console.log("currentBoard inside handleClick(): ");
+      console.log(currentBoard);
       var [replacementBoard, newScore] = simulateMove(name, currentBoard);
 
       // add a random new tile to the board if (i) there are still empty fields on the board AND (ii) the move being made is valid
@@ -576,7 +601,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
     }
 
     playAI(TF){
-
+      console.log("WE'VE JUST ENTERED PLAYAI()");
       if(TF == true){
         clearInterval(this.state.AIInterval);
         return
@@ -588,11 +613,8 @@ function expectimax(currentPlayer, boardState, currentDepth){
       // this keeps making an AI move every second
      var AIIntervalID = setInterval(() => {
 
-      // make a copy of the current state of the board
-      var boardCopy = JSON.parse(JSON.stringify(this.state.board));
-      console.log("boardCopy: " +   boardCopy);
-      var bestMove = expectimax("MAX", boardCopy, 1);
-      console.log("Best move, as determined by expectimax: " + bestMove);
+
+    var bestMove = expectimax("MAX", this.state.board, 1);
      // go ahead and make the move
      this.handleClick(bestMove);
 
@@ -601,7 +623,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
        clearInterval();
      }
 
-    }, 1000);
+   }, 3000 );
 
     // save the ID of the interval in state so that we can clear it when the user pauses the AI
     this.setState({
@@ -615,10 +637,8 @@ function expectimax(currentPlayer, boardState, currentDepth){
         var [boardieBoard, scorieScore] = simulateMove(item, boardCopy);
         movePoints[item] = scorieScore;
       });
-
       var highestPossibleScore = 0;
       var bestMove = "left";
-
       for(var key in movePoints){
         if(movePoints[key] > highestPossibleScore){
           highestPossibleScore = movePoints[key];
