@@ -106,7 +106,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
       //console.log("Move we're trying: " + item);
       //console.log("Resulting Board: " + successorBoard);
       var expectPoints = expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth);
-      console.log("expectPoints: " + expectPoints);
+        console.log("expectPoints: " + expectPoints);
       console.log("v: " + v);
       console.log("v < expectPoints: " + (v < expectPoints));
       var score = Math.max(v, expectPoints);
@@ -124,8 +124,9 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
   // else check if we're currently playing chance player
   else if(currentPlayer == "RANDOM"){
+    var boardStateCopy = JSON.parse(JSON.stringify(boardState));
     console.log("We're inside RANDOM");
-    console.log("The board passed to RANDOM: " + boardState);
+    console.log("The board passed to RANDOM: " + boardStateCopy);
 
     var currentDepth = currentDepth + 1;
 
@@ -139,12 +140,12 @@ function expectimax(currentPlayer, boardState, currentDepth){
       var randomY = Math.floor(Math.random() * (3-0+1)) + 0;
     }
     // ensure the space isn't already taken
-    while(boardState[randomX][randomY] != 0)
+    while(boardStateCopy[randomX][randomY] != 0)
 
     // for each available action
     for(var key in probDistributionOfActions){
       var prob = probDistributionOfActions[key];
-      var successorBoard = boardState;
+      var successorBoard = boardStateCopy;
 
 
       successorBoard[randomX][randomY] = key;
@@ -412,13 +413,19 @@ function expectimax(currentPlayer, boardState, currentDepth){
     handleClick(name){
       console.log("Board before parsing inside handleClick: ");
       console.log(this.state.board);
+
+
       // N.B. use of ... for deep copy
-      var currentBoard = JSON.parse(JSON.stringify(this.state.board));
+      var currentBoard = this.state.board;
+
+      currentBoard = JSON.parse(JSON.stringify(currentBoard));
       //console.log("currentBoard after parsing/stringifying in handleClick: ")
-      //console.log(currentBoard);
       console.log("currentBoard inside handleClick(): ");
       console.log(currentBoard);
+
       var [replacementBoard, newScore] = simulateMove(name, currentBoard);
+      console.log("replacementBoard generated with simulateMove: ");
+      console.log(replacementBoard);
 
       // add a random new tile to the board if (i) there are still empty fields on the board AND (ii) the move being made is valid
 
@@ -602,6 +609,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
     playAI(TF){
       console.log("WE'VE JUST ENTERED PLAYAI()");
+
       if(TF == true){
         clearInterval(this.state.AIInterval);
         return
@@ -613,17 +621,19 @@ function expectimax(currentPlayer, boardState, currentDepth){
       // this keeps making an AI move every second
      var AIIntervalID = setInterval(() => {
 
-
-    var bestMove = expectimax("MAX", this.state.board, 1);
+    var boardState = JSON.parse(JSON.stringify(this.state.board));
+    console.log("boardState");
+    console.log(boardState);
+    var bestMove = expectimax("MAX", boardState, 1);
      // go ahead and make the move
-     this.handleClick(bestMove);
+    this.handleClick(bestMove);
 
      // check whether latest move has resulted in a game over - if so, break out of this loop
-     if(isGameOver(this.state.board)){
-       clearInterval();
-     }
+    if(isGameOver(this.state.board)){
+      clearInterval();
+    }
 
-   }, 3000 );
+   }, 10000 );
 
     // save the ID of the interval in state so that we can clear it when the user pauses the AI
     this.setState({
