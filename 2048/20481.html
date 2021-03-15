@@ -96,37 +96,45 @@ function expectimax(currentPlayer, boardState, currentDepth){
     var v = -Infinity;
     var bestMove;
 
+    console.log("Board inside expectimax MAX: ");
+    console.log(boardState);
+
     // iterate over available actions
     actions.forEach(function(item, index){
-      console.log("Index" + index);
       // simulate making the move i.e. generate the successor state
+      console.log("Board being passed to simulateMove(): ");
+      console.log(boardState);
+
       var [successorBoard, successorScore] = simulateMove(item, boardState);
+
+      console.log("Board after trying " + item + " on it (this is being passed to expectimax): ");
+      console.log(successorBoard);
+
       // need to reference the 0th element because expectimax returns a tuple
       //console.log("Move we're trying: " + item);
       //console.log("Resulting Board: " + successorBoard);
       var expectPoints = expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth);
-      console.log("expectPoints: " + expectPoints);
-      console.log("v: " + v);
-      console.log("v < expectPoints: " + (v < expectPoints));
+
       var score = Math.max(v, expectPoints);
       if(score >= v){
         v = score;
         bestMove = item;
       }
-      console.log(v);
-      console.log("Score inside MAX: " + score);
+
 
     })
-    console.log("The bestMove from inside expectimax is " + bestMove);
     return(v, bestMove);
 
   }
 
   // else check if we're currently playing chance player
   else if(currentPlayer == "RANDOM"){
+    console.log("Board State before parsing: ");
+    console.log(boardState);
     var boardStateCopy = JSON.parse(JSON.stringify(boardState));
-    console.log("We're inside RANDOM");
-    console.log("The board passed to RANDOM: " + boardStateCopy);
+
+    console.log("Board state after parsing: ");
+    console.log(boardStateCopy);
 
     var currentDepth = currentDepth + 1;
 
@@ -144,15 +152,16 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
     // for each available action
     for(var key in probDistributionOfActions){
+      console.log("Board being turned into successor board inside random expectimax:  ");
+      console.log(boardStateCopy);
       var prob = probDistributionOfActions[key];
-      var successorBoard = boardStateCopy;
+      var successorBoard = JSON.parse(JSON.stringify(boardStateCopy));
 
 
-      successorBoard[randomX][randomY] = key;
-      console.log("RANDOM is deepening the recursion on this board: " + successorBoard);
-      console.log("Prob is: " + prob);
+      successorBoard[randomX][randomY] = parseInt(key);
+      console.log("Board being passed into expectimax from within RANDOM: ");
+      console.log(successorBoard);
       v += prob * expectimax(currentPlayer="MAX", boardState=successorBoard, currentDepth = currentDepth);
-      console.log("Value of V inside RANDOM: " + v);
     }
     v = v / 2;
     // returning the "up" here to maintain consistency with the format returned by the "MAX" variation but this won't be getting used anywhere
@@ -166,7 +175,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
   }
 }
   function generateNewBoard(){
-      var resetBoard = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]];
+      /*var resetBoard = [[0,0,0,0], [0,0,0,0], [0,0,0,0], [0,0,0,0]];
 
       // create coordinates for random board variables
       var x1 = Math.floor(Math.random() * 3);
@@ -182,7 +191,9 @@ function expectimax(currentPlayer, boardState, currentDepth){
       }
 
       resetBoard[x1][y1] = 2;
-      resetBoard[x2][y2] = 4;
+      resetBoard[x2][y2] = 4;*/
+
+      var resetBoard = [[0, 2, 0, 0], [0, 0, 0, 0], [4, 0, 0, 0], [0, 0, 0, 0]];
 
       return resetBoard;
   }
@@ -404,9 +415,12 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
     handleClick(name){
       var currentBoard = JSON.parse(JSON.stringify(this.state.board));
+      var copyOfCurrentBoard = JSON.parse(JSON.stringify(currentBoard));
       console.log("Initial board in handleClick()");
       console.log(currentBoard);
 
+      console.log("But interestingly, this is the copyOfCurrentBoard");
+      console.log(copyOfCurrentBoard);
 
       var [replacementBoard, newScore] = simulateMove(name, currentBoard);
       console.log("replacementBoard:");
