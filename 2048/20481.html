@@ -89,7 +89,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
     console.log("Score being returned from the base case: " + currentScore);
     //console.log("The board for which this is the score is: ");
     //console.log(boardState);
-    return(currentScore);
+    return [currentScore, "left"];
   }
 
   //else, check if we're currently playing maxPlayer
@@ -123,7 +123,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
       //console.log("Move we're trying: " + item);
       //console.log("Resulting Board: " + successorBoard);
       console.log("currentScore being passed to expectimax: " + (deepCopScore + successorScore));
-      var expectPoints = expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth, currentScore=deepCopScore + successorScore);
+      var expectPoints = expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth, currentScore=deepCopScore + successorScore)[0];
       console.log("expectPoints being returned to MAX: " + expectPoints);
 
       //var score = Math.max(v, expectPoints);
@@ -137,7 +137,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
 
 
     })
-    return(v, bestMove);
+    return [v, bestMove];
 
   }
 
@@ -170,7 +170,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
 
       successorBoard[randomX][randomY] = parseInt(key);
 
-      v += prob * expectimax(currentPlayer="MAX", boardState=successorBoard, currentDepth = currentDepth, currentScore = currentScore);
+      v += prob * expectimax(currentPlayer="MAX", boardState=successorBoard, currentDepth = currentDepth, currentScore = currentScore)[0];
       console.log("V which has been calculated for " + key + "is " + v);
     }
     console.log("V being returned from RANDOM: ");
@@ -178,7 +178,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
     //v = v / 2;
     // returning the "up" here to maintain consistency with the format returned by the "MAX" variation but this won't be getting used anywhere
     // note that we needs to be divided by 2 given that there are 2 possible actions
-    return(v);
+    return [v, "left"];
 
   }
   // catch-all in case something goes wrong
@@ -629,7 +629,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
 
     var boardState = this.state.board;
 
-    var bestMove = expectimax("MAX", boardState, 1, this.state.score);
+    var bestMove = expectimax("MAX", boardState, 1, this.state.score)[1];
     console.log("bestMove being returned by expectimax: " + bestMove);
 
      // go ahead and make the move
@@ -640,7 +640,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
       clearInterval();
     }
 
-  }, 3000 );
+  }, 1000 );
 
     // save the ID of the interval in state so that we can clear it when the user pauses the AI
     this.setState({
