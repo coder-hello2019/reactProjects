@@ -72,7 +72,7 @@ function boardScore(boardState){
 }
 
 // the expectimax function to be used in my 2048 AI game
-function expectimax(currentPlayer, boardState, currentDepth){
+function expectimax(currentPlayer, boardState, currentDepth, currentScore){
   // check if the game is in a terminal state i.e. game over or if we've reached the maximum depth we want to be going to
   /*console.log("We're inside expectimax");
   console.log("Current player: " + currentPlayer);
@@ -84,42 +84,56 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
   const actions = ["down", "right", "up", "left"];
   if(isGameOver(boardState) == true || (currentDepth % 3 == 0)){
+    console.log("currentDepth inside base case: " + currentDepth);
     console.log("The base case has been hit");
-    console.log(utility);
-    return(utility);
+    console.log("Score being returned from the base case: " + currentScore);
+    //console.log("The board for which this is the score is: ");
+    //console.log(boardState);
+    return(currentScore);
   }
 
   //else, check if we're currently playing maxPlayer
   else if(currentPlayer == "MAX"){
     var currentDepth = currentDepth + 1;
+    console.log(currentDepth, currentScore);
     console.log("We're inside MAX");
     var v = -Infinity;
     var bestMove;
 
-    console.log("Board inside expectimax MAX: ");
-    console.log(boardState);
+    if(currentDepth == 1){
+      var originalScore = currentScore;
+    }
+
+    var deepCop = JSON.parse(JSON.stringify(boardState));
+    var deepCopScore = JSON.parse(JSON.stringify(currentScore));
 
     // iterate over available actions
     actions.forEach(function(item, index){
+      console.log("Back inside MAX");
+      console.log("Now trying move: " + item);
+
       // simulate making the move i.e. generate the successor state
-      console.log("Board being passed to simulateMove(): ");
-      console.log(boardState);
+      var [successorBoard, successorScore] = simulateMove(item, deepCop);
 
-      var [successorBoard, successorScore] = simulateMove(item, boardState);
-
-      console.log("Board after trying " + item + " on it (this is being passed to expectimax): ");
+      console.log("And the successorBoard looks like this: ");
       console.log(successorBoard);
+      console.log("successorScore: " + successorScore);
 
       // need to reference the 0th element because expectimax returns a tuple
       //console.log("Move we're trying: " + item);
       //console.log("Resulting Board: " + successorBoard);
-      var expectPoints = expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth);
+      console.log("currentScore being passed to expectimax: " + (deepCopScore + successorScore));
+      var expectPoints = expectimax(currentPlayer="RANDOM", boardState=successorBoard, currentDepth = currentDepth, currentScore=deepCopScore + successorScore);
+      console.log("expectPoints being returned to MAX: " + expectPoints);
 
-      var score = Math.max(v, expectPoints);
-      if(score >= v){
-        v = score;
+      //var score = Math.max(v, expectPoints);
+
+      if(expectPoints >= v){
+        v = expectPoints;
         bestMove = item;
       }
+      console.log("After the score>v comparison, v and bestMove are (respectively): ");
+      console.log(v, bestMove);
 
 
     })
@@ -129,12 +143,9 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
   // else check if we're currently playing chance player
   else if(currentPlayer == "RANDOM"){
-    console.log("Board State before parsing: ");
-    console.log(boardState);
-    var boardStateCopy = JSON.parse(JSON.stringify(boardState));
+    console.log("We're inside RANDOM");
 
-    console.log("Board state after parsing: ");
-    console.log(boardStateCopy);
+    var boardStateCopy = JSON.parse(JSON.stringify(boardState));
 
     var currentDepth = currentDepth + 1;
 
@@ -152,18 +163,17 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
     // for each available action
     for(var key in probDistributionOfActions){
-      console.log("Board being turned into successor board inside random expectimax:  ");
-      console.log(boardStateCopy);
+
       var prob = probDistributionOfActions[key];
       var successorBoard = JSON.parse(JSON.stringify(boardStateCopy));
 
 
       successorBoard[randomX][randomY] = parseInt(key);
-      console.log("Board being passed into expectimax from within RANDOM: ");
-      console.log(successorBoard);
-      v += prob * expectimax(currentPlayer="MAX", boardState=successorBoard, currentDepth = currentDepth);
+
+      v += prob * expectimax(currentPlayer="MAX", boardState=successorBoard, currentDepth = currentDepth, currentScore = currentScore);
     }
-    v = v / 2;
+    console.log("V being returned from RANDOM: " + v);
+    //v = v / 2;
     // returning the "up" here to maintain consistency with the format returned by the "MAX" variation but this won't be getting used anywhere
     // note that we needs to be divided by 2 given that there are 2 possible actions
     return(v);
@@ -416,15 +426,8 @@ function expectimax(currentPlayer, boardState, currentDepth){
     handleClick(name){
       var currentBoard = JSON.parse(JSON.stringify(this.state.board));
       var copyOfCurrentBoard = JSON.parse(JSON.stringify(currentBoard));
-      console.log("Initial board in handleClick()");
-      console.log(currentBoard);
-
-      console.log("But interestingly, this is the copyOfCurrentBoard");
-      console.log(copyOfCurrentBoard);
 
       var [replacementBoard, newScore] = simulateMove(name, currentBoard);
-      console.log("replacementBoard:");
-      console.log(replacementBoard);
 
       // add a random new tile to the board if (i) there are still empty fields on the board AND (ii) the move being made is valid
 
@@ -562,13 +565,7 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
     // after every move, we check for game over and for game won
     componentDidUpdate(prevProps, prevState){
-      console.log("COMPONENT UPDATED");
-      if(prevState.board != this.state.board){
-        console.log("Darn, the state of the board did change");
-      }
-      else if(prevState.AIInterval != this.state.AIInterval){
-        console.log("The AIInterval has changed, as expected");
-      }
+
         if(isGameOver(this.state.board) == true){
           setTimeout(() => {
             alert("GAME OVER");
@@ -616,8 +613,6 @@ function expectimax(currentPlayer, boardState, currentDepth){
 
     playAI(TF){
       console.log("WE'VE JUST ENTERED PLAYAI()");
-      console.log("\'Boardstate\' as soon as we entered into playAI:");
-      console.log(this.state.board);
 
       if(TF == true){
         clearInterval(this.state.AIInterval);
@@ -627,15 +622,14 @@ function expectimax(currentPlayer, boardState, currentDepth){
         clearInterval(this.state.AIInterval);
       }
 
-      console.log("\`Boardstate\` just before entering setInterval()");
-      console.log(this.state.board);
       // this keeps making an AI move every second
     var AIIntervalID = setInterval(() => {
 
     var boardState = this.state.board;
-    console.log("boardState after we've entered the interval: ");
-    console.log(boardState);
-    var bestMove = expectimax("MAX", boardState, 1);
+
+    var bestMove = expectimax("MAX", boardState, 1, this.state.score);
+    console.log("bestMove being returned by expectimax: " + bestMove);
+
      // go ahead and make the move
     this.handleClick(bestMove);
 
