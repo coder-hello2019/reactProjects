@@ -83,7 +83,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
   var utility = boardScore(boardState);
 
   const actions = ["down", "right", "up", "left"];
-  if(isGameOver(boardState) == true || (currentDepth % 3 == 0)){
+  if(isGameOver(boardState) == true || (currentDepth % 4 == 0)){
     console.log("currentDepth inside base case: " + currentDepth);
     console.log("The base case has been hit");
     console.log("Score being returned from the base case: " + currentScore);
@@ -171,8 +171,10 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
       successorBoard[randomX][randomY] = parseInt(key);
 
       v += prob * expectimax(currentPlayer="MAX", boardState=successorBoard, currentDepth = currentDepth, currentScore = currentScore);
+      console.log("V which has been calculated for " + key + "is " + v);
     }
-    console.log("V being returned from RANDOM: " + v);
+    console.log("V being returned from RANDOM: ");
+    console.log(v);
     //v = v / 2;
     // returning the "up" here to maintain consistency with the format returned by the "MAX" variation but this won't be getting used anywhere
     // note that we needs to be divided by 2 given that there are 2 possible actions
