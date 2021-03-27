@@ -102,12 +102,12 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
       availableActions.push(item);
     }
   });
-  console.log(availableActions);
+  //console.log(availableActions);
 
 
   if(isGameOver(boardState) == true || (currentDepth == 6)){
-    console.log("currentDepth inside base case: " + currentDepth);
-    console.log(isGameOver(boardState));
+    //console.log("currentDepth inside base case: " + currentDepth);
+    //console.log(isGameOver(boardState));
     //console.log("The base case has been hit");
     //console.log("Score being returned from the base case: " + currentScore);
     //console.log("The board for which this is the score is: ");
@@ -401,20 +401,21 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
 
   function isValid(name, currentBoard){
     var currentCopied = JSON.parse(JSON.stringify(currentBoard));
-    var [replacementBoard, newScore] = simulateMove(name, currentBoard);
+    var currentCopied1 = JSON.parse(JSON.stringify(currentBoard));
+    var [replacementBoard, newScore] = simulateMove(name, currentCopied1);
 
-    console.log("currentBoard: ");
+    /*console.log("currentBoard: ");
     console.log(currentBoard);
 
     console.log("currentCopied:");
-    console.log(currentCopied);
+    console.log(currentCopied);*/
 
     if(JSON.stringify(replacementBoard) != JSON.stringify(currentCopied)){
-      console.log("Valid")
+      //console.log("Valid")
       return true
     }
     else{
-      console.log("Not valid")
+      //console.log("Not valid")
       return false
     }
 
@@ -611,6 +612,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
 
     // after every move, we check for game over and for game won
     componentDidUpdate(prevProps, prevState){
+        console.log("COMPONENT HAS BEEN UPDATED");
 
         if(isGameOver(this.state.board) == true){
           console.log("GAME OVER");
@@ -677,6 +679,8 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
 
     var boardState = this.state.board;
 
+    //console.log(boardState);
+
     var bestMove = expectimax("MAX", boardState, 1, this.state.score)[1];
     console.log("bestMove being returned by expectimax: " + bestMove);
 
@@ -688,7 +692,7 @@ function expectimax(currentPlayer, boardState, currentDepth, currentScore){
       clearInterval(this.state.AIInterval);
     }
 
-  }, 500 );
+  }, 1000 );
 
     // save the ID of the interval in state so that we can clear it when the user pauses the AI
     this.setState({
